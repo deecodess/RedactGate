@@ -5,6 +5,8 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
+from .context import extract_candidates
+from .detectors import scan
 from .redactor import redact_text
 from .report import write_json
 
@@ -37,9 +39,16 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
     total_preserve = 0
     preserved = 0
     false_redactions = 0
+    candidate_windows = 0
+    candidate_window_chars = 0
 
     for case in cases:
         result = redact_text(case.content)
+        candidates = []
+        if workflow_name == "final":
+            candidates = extract_candidates(case.content, scan(case.content))
+            candidate_windows += len(candidates)
+            candidate_window_chars += sum(len(item.window) for item in candidates)
         leaked = [item for item in case.sensitive if item["value"] in result.text]
         kept = [item for item in case.must_preserve if item in result.text]
         missing_benign = len(case.must_preserve) - len(kept)
@@ -61,6 +70,7 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
                 "benign_preservation": preservation,
                 "false_redactions": missing_benign,
                 "redactions": len(result.detections),
+                "candidate_windows": len(candidates),
             }
         )
 
@@ -74,6 +84,8 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
         "benign_preservation": preserved / total_preserve if total_preserve else 1.0,
         "false_redactions": false_redactions,
         "runtime_ms": runtime_ms,
+        "candidate_windows": candidate_windows,
+        "candidate_window_chars": candidate_window_chars,
         "model_calls": 0,
         "input_tokens": 0,
         "output_tokens": 0,
@@ -89,6 +101,8 @@ def write_comparison(baseline: dict[str, object], final: dict[str, object]) -> N
         ("Sensitive recall", baseline["sensitive_recall"], final["sensitive_recall"]),
         ("Benign preservation", baseline["benign_preservation"], final["benign_preservation"]),
         ("False redactions", baseline["false_redactions"], final["false_redactions"]),
+        ("Candidate windows", baseline["candidate_windows"], final["candidate_windows"]),
+        ("Candidate window chars", baseline["candidate_window_chars"], final["candidate_window_chars"]),
         ("Model calls", baseline["model_calls"], final["model_calls"]),
         ("Input tokens", baseline["input_tokens"], final["input_tokens"]),
     ]
@@ -120,4 +134,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
