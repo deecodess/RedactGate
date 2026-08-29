@@ -17,6 +17,7 @@ def sanitize_file(
     output_dir: Path,
     *,
     use_contextual: bool = False,
+    classifier_provider: str = "local",
     trajectory_dir: Path | None = None,
     max_verification_retries: int = 1,
 ) -> tuple[Path, Path, dict[str, object]]:
@@ -28,7 +29,7 @@ def sanitize_file(
 
     if use_contextual:
         candidates = extract_candidates(text, deterministic)
-        classification = classify_candidates(candidates)
+        classification = classify_candidates(candidates, provider=classifier_provider)
         detections = combine_detections(deterministic + classification.sensitive_detections)
 
     result, verification, verification_retries = redact_with_verification_retries(
@@ -52,6 +53,8 @@ def sanitize_file(
     if classification:
         report["metrics"].update(
             {
+                "classifier_provider": classification.provider,
+                "prompt_version": classification.prompt_version,
                 "model_calls": classification.model_calls,
                 "input_tokens": classification.input_tokens,
                 "output_tokens": classification.output_tokens,

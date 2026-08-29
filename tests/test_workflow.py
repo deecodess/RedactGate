@@ -39,6 +39,7 @@ class WorkflowTests(unittest.TestCase):
             self.assertNotIn("Marcus Williams", redacted_path.read_text(encoding="utf-8"))
             self.assertEqual(report["context"]["candidate_windows"], 1)
             self.assertEqual(report["metrics"]["model_calls"], 0)
+            self.assertEqual(report["metrics"]["classifier_provider"], "local")
             self.assertTrue(report_path.exists())
             persisted = json.loads(report_path.read_text(encoding="utf-8"))
             self.assertNotIn("Marcus Williams", json.dumps(persisted))

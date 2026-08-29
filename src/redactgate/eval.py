@@ -48,6 +48,8 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
     input_tokens = 0
     output_tokens = 0
     estimated_model_cost = 0.0
+    classifier_provider = "none"
+    prompt_version = "none"
     failure_category_counts: dict[str, int] = {}
     verification_retries = 0
 
@@ -59,6 +61,8 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
         if workflow_name == "final":
             candidates = extract_candidates(case.content, deterministic)
             classification = classify_candidates(candidates)
+            classifier_provider = classification.provider
+            prompt_version = classification.prompt_version
             detections = combine_detections(deterministic + classification.sensitive_detections)
             candidate_windows += len(candidates)
             candidate_window_chars += sum(len(item.window) for item in candidates)
@@ -124,6 +128,8 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
         "input_tokens": input_tokens,
         "output_tokens": output_tokens,
         "estimated_model_cost": estimated_model_cost,
+        "classifier_provider": classifier_provider,
+        "prompt_version": prompt_version,
         "failure_category_counts": failure_category_counts,
         "verification_retries": verification_retries,
         "cases": case_results,
@@ -155,6 +161,8 @@ def write_comparison(baseline: dict[str, object], final: dict[str, object]) -> N
     lines.append("")
     lines.append(f"Baseline failure categories: `{baseline['failure_category_counts']}`")
     lines.append(f"Final failure categories: `{final['failure_category_counts']}`")
+    lines.append(f"Final classifier provider: `{final['classifier_provider']}`")
+    lines.append(f"Final prompt version: `{final['prompt_version']}`")
     lines.append("")
     lines.append("Note: final currently uses a local deterministic contextual classifier, not a model provider.")
     (RESULT_DIR / "comparison.md").write_text("\n".join(lines) + "\n", encoding="utf-8")

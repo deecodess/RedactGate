@@ -230,3 +230,33 @@ Both sample CLIs returned `PASS`, and the sample report recorded `format_check_p
 **Decision / learning**
 
 JSON uses strict standard-library parsing. CSV validation checks parse errors and inconsistent row widths as a small, deterministic malformed-output signal.
+
+---
+
+### 2026-08-29 - Versioned classifier provider boundary
+
+**What changed**
+
+Added an explicit classifier provider boundary and checked in `prompts/context_classifier_v1.md` as the versioned structured-output prompt/schema for future model-backed classification.
+
+**Why**
+
+The project needs prompt versioning and measurable provider metadata before any model provider is enabled. Keeping the default provider as `local` preserves the zero-token workflow.
+
+**Evidence**
+
+`python -m unittest discover -s tests` ran 31 tests successfully.
+
+`python -m redactgate.eval` generated:
+
+```text
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+classifier_provider=local
+prompt_version=context_classifier_v1
+model_calls=0
+```
+
+**Decision / learning**
+
+The provider interface rejects unsupported providers for now. A network model can be added later behind the same structured result type without changing the baseline path.

@@ -36,6 +36,7 @@ python -m redactgate.cli path/to/input.log
 ```
 
 The final workflow currently adds local contextual classification for explicit candidate windows. It does not call a model provider yet.
+The classifier provider is explicit and defaults to `local`; the versioned prompt/schema lives at `prompts/context_classifier_v1.md`.
 It writes a sanitized trajectory to `trajectories/` unless `--no-trajectory` is passed.
 
 Outputs are written to `output/` by default:
@@ -68,5 +69,7 @@ final failure categories={}
 baseline verification_retries=0
 final verification_retries=0
 format_check_passed=true
+classifier_provider=local
+prompt_version=context_classifier_v1
 model_calls=0
 ```

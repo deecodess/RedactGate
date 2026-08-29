@@ -10,6 +10,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run the hybrid RedactGate workflow.")
     parser.add_argument("input", type=Path, help="Path to a .txt, .log, .json, or .csv file.")
     parser.add_argument("-o", "--output-dir", type=Path, default=Path("output"))
+    parser.add_argument("--classifier-provider", default="local", choices=["local"])
     parser.add_argument("--trajectory-dir", type=Path, default=Path("trajectories"))
     parser.add_argument("--no-trajectory", action="store_true", help="Do not write a sanitized trajectory file.")
     args = parser.parse_args(argv)
@@ -19,6 +20,7 @@ def main(argv: list[str] | None = None) -> int:
         args.input,
         args.output_dir,
         use_contextual=True,
+        classifier_provider=args.classifier_provider,
         trajectory_dir=trajectory_dir,
     )
     print(f"{report['status']} redacted={redacted_path} report={report_path}")
