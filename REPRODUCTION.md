@@ -51,7 +51,7 @@ python -m unittest discover -s tests
 Expected outcome:
 
 ```text
-Ran 14 tests
+Ran 18 tests
 OK
 ```
 
@@ -111,6 +111,8 @@ Only keep names that match the real implementation.
 Observed command output:
 baseline safe_release_rate=0.667
 final safe_release_rate=1.000
+baseline failure categories: {'LEAK_CONTEXTUAL': 4}
+final failure categories: {}
 
 Model calls: 0
 Input tokens: 0

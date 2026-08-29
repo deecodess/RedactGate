@@ -81,3 +81,32 @@ model_calls=0
 **Decision / learning**
 
 Explicit contextual labels were enough to close the current synthetic benchmark without model calls. Reports intentionally avoid persisting contextual span text, so the report does not reproduce the sensitive values it helped redact.
+
+---
+
+### 2026-08-29 - Evaluation verification hardening
+
+**What changed**
+
+Centralized verification for evaluation in `verifier.py`, including gold-sensitive leak checks, benign-preservation checks, independent obvious-secret scanning, and explicit failure categories.
+
+**Why**
+
+Safe Release Rate should be backed by a verifier that explains why a case failed. This keeps future improvements honest and makes regression analysis cheaper.
+
+**Evidence**
+
+`python -m unittest discover -s tests` ran 18 tests successfully.
+
+`python -m redactgate.eval` generated:
+
+```text
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+baseline failure_categories={'LEAK_CONTEXTUAL': 4}
+final failure_categories={}
+```
+
+**Decision / learning**
+
+The current baseline misses four context-dependent cases, all categorized as `LEAK_CONTEXTUAL`. The final local contextual workflow passes those cases without adding model calls.

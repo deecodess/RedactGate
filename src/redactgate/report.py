@@ -7,7 +7,8 @@ from .models import RedactionResult
 
 
 def build_report(input_file: Path, result: RedactionResult, verification: dict[str, object]) -> dict[str, object]:
-    status = "PASS" if verification["obvious_secret_scan_passed"] else "FAIL"
+    passed = verification["obvious_secret_scan_passed"] and verification["preservation_check_passed"]
+    status = "PASS" if passed else "FAIL"
     return {
         "input_file": str(input_file),
         "status": status,
@@ -26,4 +27,3 @@ def build_report(input_file: Path, result: RedactionResult, verification: dict[s
 def write_json(path: Path, payload: dict[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-

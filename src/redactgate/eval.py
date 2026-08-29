@@ -10,6 +10,7 @@ from .context import extract_candidates
 from .detectors import scan
 from .redactor import combine_detections, redact_text
 from .report import write_json
+from .verifier import verify_gold_release
 
 
 CASE_FILE = Path("eval/cases/cases.json")
@@ -46,6 +47,7 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
     input_tokens = 0
     output_tokens = 0
     estimated_model_cost = 0.0
+    failure_category_counts: dict[str, int] = {}
 
     for case in cases:
         deterministic = scan(case.content)
@@ -63,26 +65,33 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
             output_tokens += classification.output_tokens
             estimated_model_cost += classification.estimated_model_cost
         result = redact_text(case.content, detections)
-        leaked = [item for item in case.sensitive if item["value"] in result.text]
-        kept = [item for item in case.must_preserve if item in result.text]
-        missing_benign = len(case.must_preserve) - len(kept)
-        preservation = 1.0 if not case.must_preserve else len(kept) / len(case.must_preserve)
-        passed = not leaked and preservation >= PRESERVATION_THRESHOLD
+        verification = verify_gold_release(
+            result.text,
+            case.sensitive,
+            case.must_preserve,
+            PRESERVATION_THRESHOLD,
+        )
 
         total_sensitive += len(case.sensitive)
-        redacted_sensitive += len(case.sensitive) - len(leaked)
+        redacted_sensitive += len(case.sensitive) - int(verification["leaked_sensitive_count"])
         total_preserve += len(case.must_preserve)
-        preserved += len(kept)
-        false_redactions += missing_benign
+        preserved += len(case.must_preserve) - int(verification["false_redactions"])
+        false_redactions += int(verification["false_redactions"])
+        for category in verification["failure_categories"]:
+            failure_category_counts[category] = failure_category_counts.get(category, 0) + 1
 
         case_results.append(
             {
                 "id": case.id,
                 "description": case.description,
-                "passed": passed,
-                "leaked_sensitive_count": len(leaked),
-                "benign_preservation": preservation,
-                "false_redactions": missing_benign,
+                "passed": verification["passed"],
+                "leaked_sensitive_count": verification["leaked_sensitive_count"],
+                "leaked_sensitive_types": verification["leaked_sensitive_types"],
+                "benign_preservation": verification["benign_preservation"],
+                "false_redactions": verification["false_redactions"],
+                "failure_categories": verification["failure_categories"],
+                "obvious_secret_scan_passed": verification["obvious_secret_scan_passed"],
+                "preservation_check_passed": verification["preservation_check_passed"],
                 "redactions": len(result.detections),
                 "candidate_windows": len(candidates),
                 "classified_sensitive": len(classification.sensitive_detections),
@@ -105,6 +114,7 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
         "input_tokens": input_tokens,
         "output_tokens": output_tokens,
         "estimated_model_cost": estimated_model_cost,
+        "failure_category_counts": failure_category_counts,
         "cases": case_results,
     }
 
@@ -130,6 +140,9 @@ def write_comparison(baseline: dict[str, object], final: dict[str, object]) -> N
     for label, base, fin in rows:
         change = fin - base if isinstance(base, (int, float)) and isinstance(fin, (int, float)) else "n/a"
         lines.append(f"| {label} | {base} | {fin} | {change} |")
+    lines.append("")
+    lines.append(f"Baseline failure categories: `{baseline['failure_category_counts']}`")
+    lines.append(f"Final failure categories: `{final['failure_category_counts']}`")
     lines.append("")
     lines.append("Note: final currently uses a local deterministic contextual classifier, not a model provider.")
     (RESULT_DIR / "comparison.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
