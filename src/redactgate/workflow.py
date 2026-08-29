@@ -6,10 +6,9 @@ from .classifier import classify_candidates
 from .context import extract_candidates
 from .detectors import scan
 from .parsers import load_text
-from .redactor import combine_detections, redact_text
+from .redactor import combine_detections, redact_with_verification_retries
 from .report import build_report, write_json
 from .trajectory import build_trajectory, write_trajectory
-from .verifier import verify_text
 
 
 def sanitize_file(
@@ -18,6 +17,7 @@ def sanitize_file(
     *,
     use_contextual: bool = False,
     trajectory_dir: Path | None = None,
+    max_verification_retries: int = 1,
 ) -> tuple[Path, Path, dict[str, object]]:
     text = load_text(input_path)
     deterministic = scan(text)
@@ -30,9 +30,13 @@ def sanitize_file(
         classification = classify_candidates(candidates)
         detections = combine_detections(deterministic + classification.sensitive_detections)
 
-    result = redact_text(text, detections)
-    verification = verify_text(result.text)
+    result, verification, verification_retries = redact_with_verification_retries(
+        text,
+        detections,
+        max_retries=max_verification_retries,
+    )
     report = build_report(input_path, result, verification)
+    report["metrics"]["verification_retries"] = verification_retries
     report["context"] = {
         "candidate_windows": len(candidates),
         "candidate_window_chars": sum(len(item.window) for item in candidates),

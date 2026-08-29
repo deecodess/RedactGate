@@ -8,7 +8,7 @@ from pathlib import Path
 from .classifier import ClassificationResult, classify_candidates
 from .context import extract_candidates
 from .detectors import scan
-from .redactor import combine_detections, redact_text
+from .redactor import combine_detections, redact_with_verification_retries
 from .report import write_json
 from .verifier import verify_gold_release
 
@@ -48,6 +48,7 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
     output_tokens = 0
     estimated_model_cost = 0.0
     failure_category_counts: dict[str, int] = {}
+    verification_retries = 0
 
     for case in cases:
         deterministic = scan(case.content)
@@ -64,7 +65,8 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
             input_tokens += classification.input_tokens
             output_tokens += classification.output_tokens
             estimated_model_cost += classification.estimated_model_cost
-        result = redact_text(case.content, detections)
+        result, _, retries = redact_with_verification_retries(case.content, detections)
+        verification_retries += retries
         verification = verify_gold_release(
             result.text,
             case.sensitive,
@@ -95,6 +97,7 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
                 "redactions": len(result.detections),
                 "candidate_windows": len(candidates),
                 "classified_sensitive": len(classification.sensitive_detections),
+                "verification_retries": retries,
             }
         )
 
@@ -115,6 +118,7 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
         "output_tokens": output_tokens,
         "estimated_model_cost": estimated_model_cost,
         "failure_category_counts": failure_category_counts,
+        "verification_retries": verification_retries,
         "cases": case_results,
     }
 
@@ -128,6 +132,7 @@ def write_comparison(baseline: dict[str, object], final: dict[str, object]) -> N
         ("False redactions", baseline["false_redactions"], final["false_redactions"]),
         ("Candidate windows", baseline["candidate_windows"], final["candidate_windows"]),
         ("Candidate window chars", baseline["candidate_window_chars"], final["candidate_window_chars"]),
+        ("Verification retries", baseline["verification_retries"], final["verification_retries"]),
         ("Model calls", baseline["model_calls"], final["model_calls"]),
         ("Input tokens", baseline["input_tokens"], final["input_tokens"]),
     ]

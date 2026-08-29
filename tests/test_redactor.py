@@ -1,6 +1,6 @@
 import unittest
 
-from redactgate.redactor import redact_text
+from redactgate.redactor import redact_text, redact_with_verification_retries
 from redactgate.verifier import verify_gold_release, verify_text
 
 
@@ -15,6 +15,17 @@ class RedactorTests(unittest.TestCase):
     def test_verifier_catches_remaining_obvious_secret(self) -> None:
         verification = verify_text("Still has bob@example.com")
         self.assertFalse(verification["obvious_secret_scan_passed"])
+
+    def test_retry_redacts_secret_missed_by_initial_detections(self) -> None:
+        result, verification, retries = redact_with_verification_retries(
+            "Still has bob@example.com",
+            detections=[],
+            max_retries=1,
+        )
+        self.assertEqual(retries, 1)
+        self.assertTrue(verification["obvious_secret_scan_passed"])
+        self.assertIn("[REDACTED_EMAIL]", result.text)
+        self.assertNotIn("bob@example.com", result.text)
 
     def test_gold_verifier_reports_contextual_leak(self) -> None:
         verification = verify_gold_release(

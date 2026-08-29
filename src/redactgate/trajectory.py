@@ -45,6 +45,7 @@ def build_trajectory(
                 "status": "completed",
                 "passed": verification["obvious_secret_scan_passed"]
                 and verification["preservation_check_passed"],
+                "retries": metrics["verification_retries"],
             },
         ],
         "redactions": [item.to_report() for item in result.detections],
@@ -59,4 +60,3 @@ def write_trajectory(trajectory_dir: Path, input_path: Path, workflow: str, payl
     path = trajectory_dir / f"{input_path.stem}.{workflow}.trajectory.json"
     write_json(path, payload)
     return path
-

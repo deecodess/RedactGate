@@ -139,3 +139,34 @@ final safe_release_rate=1.000
 **Decision / learning**
 
 Trajectory records intentionally omit raw detected values, contextual spans, and candidate-window text. Generated trajectory files are ignored by Git, while the directory is kept with `.gitkeep`.
+
+---
+
+### 2026-08-29 - Bounded verification retries
+
+**What changed**
+
+Added a bounded retry loop after independent verification. If the verifier finds an obvious remaining secret, the workflow performs one more deterministic redaction pass over the sanitized text and records the retry count.
+
+**Why**
+
+The verifier should be able to block or repair obvious misses instead of merely reporting that the first pass completed.
+
+**Evidence**
+
+`python -m unittest discover -s tests` ran 22 tests successfully.
+
+`python -m redactgate.eval` generated:
+
+```text
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+baseline verification_retries=0
+final verification_retries=0
+```
+
+The retry path is covered by a workflow regression test that simulates an initial obvious-secret miss and verifies that one bounded retry redacts it.
+
+**Decision / learning**
+
+Retries are capped by default at one pass. This satisfies the bounded-retry requirement without hiding persistent verifier failures behind an infinite loop.

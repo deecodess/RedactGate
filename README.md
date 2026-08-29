@@ -62,5 +62,7 @@ baseline safe_release_rate=0.667
 final safe_release_rate=1.000
 baseline failure categories={'LEAK_CONTEXTUAL': 4}
 final failure categories={}
+baseline verification_retries=0
+final verification_retries=0
 model_calls=0
 ```

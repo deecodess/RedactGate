@@ -19,6 +19,7 @@ class EvalTests(unittest.TestCase):
         self.assertEqual(result["safe_release_rate"], 1.0)
         self.assertEqual(result["sensitive_recall"], 1.0)
         self.assertEqual(result["benign_preservation"], 1.0)
+        self.assertEqual(result["verification_retries"], 0)
 
     def test_baseline_eval_records_failure_categories(self) -> None:
         cases = [

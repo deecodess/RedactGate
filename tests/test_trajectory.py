@@ -35,8 +35,8 @@ class TrajectoryTests(unittest.TestCase):
             self.assertEqual(payload["steps"][1]["detections"], 1)
             self.assertEqual(payload["steps"][2]["candidate_windows"], 1)
             self.assertEqual(payload["metrics"]["model_calls"], 0)
+            self.assertEqual(payload["steps"][5]["retries"], 0)
 
 
 if __name__ == "__main__":
     unittest.main()
-

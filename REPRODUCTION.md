@@ -51,7 +51,7 @@ python -m unittest discover -s tests
 Expected outcome:
 
 ```text
-Ran 20 tests
+Ran 22 tests
 OK
 ```
 
@@ -114,6 +114,8 @@ baseline safe_release_rate=0.667
 final safe_release_rate=1.000
 baseline failure categories: {'LEAK_CONTEXTUAL': 4}
 final failure categories: {}
+baseline verification retries: 0
+final verification retries: 0
 
 Model calls: 0
 Input tokens: 0

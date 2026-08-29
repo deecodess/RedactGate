@@ -2,6 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from redactgate.workflow import sanitize_file
 
@@ -51,6 +52,20 @@ class WorkflowTests(unittest.TestCase):
             _, _, report = sanitize_file(source, output, use_contextual=True)
 
             self.assertNotIn("trajectory_path", report)
+
+    def test_workflow_retries_when_verifier_finds_missed_obvious_secret(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            source = base / "sample.log"
+            output = base / "out"
+            source.write_text("Email alice@example.com failed with HTTP 500", encoding="utf-8")
+
+            with patch("redactgate.workflow.scan", return_value=[]):
+                redacted_path, _, report = sanitize_file(source, output, max_verification_retries=1)
+
+            self.assertEqual(report["metrics"]["verification_retries"], 1)
+            self.assertEqual(report["status"], "PASS")
+            self.assertNotIn("alice@example.com", redacted_path.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
