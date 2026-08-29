@@ -51,7 +51,7 @@ python -m unittest discover -s tests
 Expected outcome:
 
 ```text
-Ran 18 tests
+Ran 20 tests
 OK
 ```
 
@@ -68,6 +68,7 @@ Expected output files:
 ```text
 output/sample.redacted.log
 output/sample.redaction-report.json
+trajectories/sample.final.trajectory.json
 ```
 
 ---

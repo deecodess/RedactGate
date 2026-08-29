@@ -8,6 +8,7 @@ from .detectors import scan
 from .parsers import load_text
 from .redactor import combine_detections, redact_text
 from .report import build_report, write_json
+from .trajectory import build_trajectory, write_trajectory
 from .verifier import verify_text
 
 
@@ -16,6 +17,7 @@ def sanitize_file(
     output_dir: Path,
     *,
     use_contextual: bool = False,
+    trajectory_dir: Path | None = None,
 ) -> tuple[Path, Path, dict[str, object]]:
     text = load_text(input_path)
     deterministic = scan(text)
@@ -45,6 +47,19 @@ def sanitize_file(
                 "estimated_model_cost": classification.estimated_model_cost,
             }
         )
+    if trajectory_dir is not None:
+        workflow_name = "final" if use_contextual else "baseline"
+        trajectory = build_trajectory(
+            input_path=input_path,
+            workflow=workflow_name,
+            deterministic_count=len(deterministic),
+            candidates=candidates,
+            result=result,
+            verification=verification,
+            metrics=report["metrics"],
+        )
+        trajectory_path = write_trajectory(trajectory_dir, input_path, workflow_name, trajectory)
+        report["trajectory_path"] = str(trajectory_path)
 
     output_dir.mkdir(parents=True, exist_ok=True)
     redacted_path = output_dir / f"{input_path.stem}.redacted{input_path.suffix}"

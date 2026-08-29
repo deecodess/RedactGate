@@ -36,11 +36,16 @@ python -m redactgate.cli path/to/input.log
 ```
 
 The final workflow currently adds local contextual classification for explicit candidate windows. It does not call a model provider yet.
+It writes a sanitized trajectory to `trajectories/` unless `--no-trajectory` is passed.
 
 Outputs are written to `output/` by default:
 
 - `<name>.redacted<suffix>`
 - `<name>.redaction-report.json`
+
+Final workflow trajectories are written as:
+
+- `trajectories/<name>.final.trajectory.json`
 
 ## Run Evaluation
 

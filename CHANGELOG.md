@@ -110,3 +110,32 @@ final failure_categories={}
 **Decision / learning**
 
 The current baseline misses four context-dependent cases, all categorized as `LEAK_CONTEXTUAL`. The final local contextual workflow passes those cases without adding model calls.
+
+---
+
+### 2026-08-29 - Sanitized trajectory logging
+
+**What changed**
+
+Added trajectory logging for the final workflow. Trajectories record the workflow steps, detection counts, candidate-window counts, verifier outcome, redaction metadata, and model/token usage.
+
+**Why**
+
+The project needs representative execution traces without storing source secrets. This makes the workflow auditable while keeping generated trajectories safe to inspect locally.
+
+**Evidence**
+
+`python -m unittest discover -s tests` ran 20 tests successfully.
+
+`python -m redactgate.eval` generated:
+
+```text
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+```
+
+`python -m redactgate.cli examples/sample.log` wrote `trajectories/sample.final.trajectory.json`; a search for the sample email/token in generated outputs returned no matches.
+
+**Decision / learning**
+
+Trajectory records intentionally omit raw detected values, contextual spans, and candidate-window text. Generated trajectory files are ignored by Git, while the directory is kept with `.gitkeep`.

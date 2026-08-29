@@ -41,6 +41,17 @@ class WorkflowTests(unittest.TestCase):
             persisted = json.loads(report_path.read_text(encoding="utf-8"))
             self.assertNotIn("Marcus Williams", json.dumps(persisted))
 
+    def test_workflow_omits_trajectory_when_not_requested(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            source = base / "sample.txt"
+            output = base / "out"
+            source.write_text("Customer: Marcus Williams reported HTTP 500", encoding="utf-8")
+
+            _, _, report = sanitize_file(source, output, use_contextual=True)
+
+            self.assertNotIn("trajectory_path", report)
+
 
 if __name__ == "__main__":
     unittest.main()

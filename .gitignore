@@ -11,5 +11,5 @@ dist/
 *.egg-info/
 output/
 eval/results/
-trajectories/
-
+trajectories/*
+!trajectories/.gitkeep
