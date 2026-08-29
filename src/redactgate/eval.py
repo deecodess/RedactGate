@@ -5,9 +5,10 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
+from .classifier import ClassificationResult, classify_candidates
 from .context import extract_candidates
 from .detectors import scan
-from .redactor import redact_text
+from .redactor import combine_detections, redact_text
 from .report import write_json
 
 
@@ -41,14 +42,27 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
     false_redactions = 0
     candidate_windows = 0
     candidate_window_chars = 0
+    model_calls = 0
+    input_tokens = 0
+    output_tokens = 0
+    estimated_model_cost = 0.0
 
     for case in cases:
-        result = redact_text(case.content)
+        deterministic = scan(case.content)
         candidates = []
+        classification = ClassificationResult(decisions=[])
+        detections = deterministic
         if workflow_name == "final":
-            candidates = extract_candidates(case.content, scan(case.content))
+            candidates = extract_candidates(case.content, deterministic)
+            classification = classify_candidates(candidates)
+            detections = combine_detections(deterministic + classification.sensitive_detections)
             candidate_windows += len(candidates)
             candidate_window_chars += sum(len(item.window) for item in candidates)
+            model_calls += classification.model_calls
+            input_tokens += classification.input_tokens
+            output_tokens += classification.output_tokens
+            estimated_model_cost += classification.estimated_model_cost
+        result = redact_text(case.content, detections)
         leaked = [item for item in case.sensitive if item["value"] in result.text]
         kept = [item for item in case.must_preserve if item in result.text]
         missing_benign = len(case.must_preserve) - len(kept)
@@ -71,6 +85,7 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
                 "false_redactions": missing_benign,
                 "redactions": len(result.detections),
                 "candidate_windows": len(candidates),
+                "classified_sensitive": len(classification.sensitive_detections),
             }
         )
 
@@ -86,10 +101,10 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
         "runtime_ms": runtime_ms,
         "candidate_windows": candidate_windows,
         "candidate_window_chars": candidate_window_chars,
-        "model_calls": 0,
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "estimated_model_cost": 0.0,
+        "model_calls": model_calls,
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "estimated_model_cost": estimated_model_cost,
         "cases": case_results,
     }
 
@@ -116,7 +131,7 @@ def write_comparison(baseline: dict[str, object], final: dict[str, object]) -> N
         change = fin - base if isinstance(base, (int, float)) and isinstance(fin, (int, float)) else "n/a"
         lines.append(f"| {label} | {base} | {fin} | {change} |")
     lines.append("")
-    lines.append("Note: final currently uses the deterministic workflow until contextual classification is added.")
+    lines.append("Note: final currently uses a local deterministic contextual classifier, not a model provider.")
     (RESULT_DIR / "comparison.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

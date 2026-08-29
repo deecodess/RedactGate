@@ -31,7 +31,7 @@ The editable install was tested on Windows.
 
 ## 3. Environment variables
 
-No environment variables are required for the deterministic baseline.
+No environment variables are required for the deterministic baseline or the current local contextual classifier.
 
 ```text
 MODEL_API_KEY=
@@ -51,7 +51,7 @@ python -m unittest discover -s tests
 Expected outcome:
 
 ```text
-Ran 7 tests
+Ran 14 tests
 OK
 ```
 
@@ -110,7 +110,7 @@ Only keep names that match the real implementation.
 ```text
 Observed command output:
 baseline safe_release_rate=0.667
-final safe_release_rate=0.667
+final safe_release_rate=1.000
 
 Model calls: 0
 Input tokens: 0
@@ -125,8 +125,9 @@ Do not estimate these if the tool/provider exposes actual values.
 ## 9. Expected limitations
 
 - Only `.txt`, `.log`, `.json`, and `.csv` inputs are supported.
-- The final CLI currently uses the deterministic workflow.
-- Context-dependent spans such as customer names, addresses, and ambiguous identifiers are present in the benchmark but are not yet handled.
+- The final CLI currently uses deterministic rules plus a local contextual classifier.
+- Context-dependent spans are handled only for explicit labels covered by candidate extraction.
+- No external model provider is wired yet.
 
 ---
 

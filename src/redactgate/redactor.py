@@ -19,3 +19,14 @@ def redact_text(text: str, detections: list[Detection] | None = None) -> Redacti
     pieces.append(text[cursor:])
     return RedactionResult(text="".join(pieces), detections=found, replacements=replacements)
 
+
+def combine_detections(detections: list[Detection]) -> list[Detection]:
+    ordered = sorted(detections, key=lambda item: (item.start, -(item.end - item.start)))
+    selected: list[Detection] = []
+    occupied_until = -1
+    for item in ordered:
+        if item.start < occupied_until:
+            continue
+        selected.append(item)
+        occupied_until = item.end
+    return selected

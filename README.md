@@ -1,6 +1,6 @@
 # RedactGate
 
-RedactGate sanitizes text-first developer/support artifacts before sharing. The current milestone is a deterministic baseline plus a synthetic evaluation harness.
+RedactGate sanitizes text-first developer/support artifacts before sharing. The current milestone includes a deterministic baseline, a local contextual classifier, and a synthetic evaluation harness.
 
 Supported inputs:
 
@@ -27,6 +27,16 @@ python -m unittest discover -s tests
 python -m redactgate.baseline path/to/input.log
 ```
 
+The baseline uses deterministic rules only.
+
+## Run RedactGate
+
+```bash
+python -m redactgate.cli path/to/input.log
+```
+
+The final workflow currently adds local contextual classification for explicit candidate windows. It does not call a model provider yet.
+
 Outputs are written to `output/` by default:
 
 - `<name>.redacted<suffix>`
@@ -40,3 +50,10 @@ python -m redactgate.eval
 
 Evaluation outputs are written to `eval/results/`.
 
+Latest local evaluation:
+
+```text
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+model_calls=0
+```

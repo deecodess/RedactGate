@@ -37,14 +37,13 @@ class CandidateWindow:
 
     def to_report(self) -> dict[str, object]:
         return {
-            "span": self.span,
             "type_hint": self.type_hint,
             "trigger": self.trigger,
             "start": self.start,
             "end": self.end,
             "window_start": self.window_start,
             "window_end": self.window_end,
-            "window": self.window,
+            "window_chars": len(self.window),
         }
 
 
@@ -102,4 +101,3 @@ def _without_duplicate_spans(candidates: list[CandidateWindow]) -> list[Candidat
         seen.add(key)
         selected.append(item)
     return selected
-

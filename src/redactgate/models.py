@@ -10,6 +10,9 @@ PLACEHOLDERS: dict[str, str] = {
     "SECRET": "[REDACTED_SECRET]",
     "DATABASE_URL": "[REDACTED_SECRET]",
     "PHONE": "[REDACTED_PHONE]",
+    "PERSON_NAME": "[REDACTED_PERSON]",
+    "ADDRESS": "[REDACTED_ADDRESS]",
+    "IDENTIFIER": "[REDACTED_IDENTIFIER]",
 }
 
 
@@ -44,4 +47,3 @@ class RedactionResult:
     text: str
     detections: list[Detection]
     replacements: int
-
