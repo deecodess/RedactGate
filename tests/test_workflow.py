@@ -8,6 +8,30 @@ from redactgate.workflow import sanitize_file
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_sanitize_file_accepts_all_mvp_file_types(self) -> None:
+        cases = {
+            "sample.txt": "Email alice@example.com failed with HTTP 500",
+            "sample.log": "Email alice@example.com failed with HTTP 500",
+            "sample.json": '{"email":"alice@example.com","status":500}',
+            "sample.csv": "email,status\nalice@example.com,500\n",
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            output = base / "out"
+
+            for name, content in cases.items():
+                with self.subTest(name=name):
+                    source = base / name
+                    source.write_text(content, encoding="utf-8")
+
+                    redacted_path, report_path, report = sanitize_file(source, output)
+
+                    self.assertTrue(redacted_path.exists())
+                    self.assertTrue(report_path.exists())
+                    self.assertEqual(report["status"], "PASS")
+                    self.assertTrue(report["verification"]["format_check_passed"])
+                    self.assertNotIn("alice@example.com", redacted_path.read_text(encoding="utf-8"))
+
     def test_sanitize_file_writes_artifact_and_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)

@@ -318,3 +318,30 @@ Expected output paths existed, and generated outputs did not contain the sample 
 **Decision / learning**
 
 The package has no runtime dependencies. Editable installation still needs the standard build backend, so a sandboxed environment may require network permission for build dependencies.
+
+---
+
+### 2026-08-29 - MVP file-type workflow coverage
+
+**What changed**
+
+Added an end-to-end workflow test that sanitizes `.txt`, `.log`, `.json`, and `.csv` files and verifies redacted artifacts, reports, and format checks.
+
+**Why**
+
+The MVP explicitly supports four file types, so the workflow should prove all four routes work instead of relying on parser constants alone.
+
+**Evidence**
+
+`python -m unittest discover -s tests` ran 32 tests successfully.
+
+`python -m redactgate.eval` generated:
+
+```text
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+```
+
+**Decision / learning**
+
+The current implementation keeps parsing lightweight and validates JSON/CSV structure after redaction.
