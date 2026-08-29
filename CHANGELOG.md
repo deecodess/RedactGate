@@ -280,3 +280,41 @@ The committed trajectory example contains redaction metadata, counts, verifier s
 **Decision / learning**
 
 Generated runtime trajectories remain ignored. Only the stable `.example.json` trajectory is committed as a reviewable artifact.
+
+---
+
+### 2026-08-29 - Clean reproduction verification
+
+**What changed**
+
+Updated reproduction notes with a clean local clone and fresh virtual-environment verification run.
+
+**Why**
+
+The project should be runnable from a fresh checkout without hidden setup steps.
+
+**Evidence**
+
+The clean clone ran:
+
+```text
+.venv\Scripts\python.exe -m unittest discover -s tests
+Ran 31 tests
+OK
+
+.venv\Scripts\python.exe -m redactgate.baseline examples/sample.log
+PASS redacted=output\sample.redacted.log report=output\sample.redaction-report.json
+
+.venv\Scripts\python.exe -m redactgate.cli examples/sample.log
+PASS redacted=output\sample.redacted.log report=output\sample.redaction-report.json
+
+.venv\Scripts\python.exe -m redactgate.eval
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+```
+
+Expected output paths existed, and generated outputs did not contain the sample sensitive values.
+
+**Decision / learning**
+
+The package has no runtime dependencies. Editable installation still needs the standard build backend, so a sandboxed environment may require network permission for build dependencies.

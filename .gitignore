@@ -1,5 +1,7 @@
 .env
 .venv/
+.repro-venv/
+.repro-clone/
 __pycache__/
 *.py[cod]
 .pytest_cache/

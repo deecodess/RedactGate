@@ -68,7 +68,6 @@ Expected output files:
 ```text
 output/sample.redacted.log
 output/sample.redaction-report.json
-trajectories/sample.final.trajectory.json
 ```
 
 ---
@@ -84,6 +83,7 @@ Expected output files:
 ```text
 output/sample.redacted.log
 output/sample.redaction-report.json
+trajectories/sample.final.trajectory.json
 ```
 
 ---
@@ -149,18 +149,36 @@ Do not estimate these if the tool/provider exposes actual values.
 
 ## 10. Clean-environment verification
 
-Before considering reproduction complete:
+Verified locally on Windows using a fresh local clone at `.repro-clone/` and a fresh virtual environment.
 
-- [ ] clone into a fresh directory;
-- [ ] create a fresh environment;
-- [ ] install from documented commands;
-- [ ] run tests;
-- [ ] run baseline example;
-- [ ] run final example;
-- [ ] run evaluation;
-- [ ] confirm documented output paths;
-- [ ] confirm no secret is required beyond documented environment variables;
-- [ ] commit final documentation cleanup.
+- [x] clone into a fresh directory;
+- [x] create a fresh environment;
+- [x] install from documented commands;
+- [x] run tests;
+- [x] run baseline example;
+- [x] run final example;
+- [x] run evaluation;
+- [x] confirm documented output paths;
+- [x] confirm no secret is required beyond documented environment variables;
+- [x] confirm generated outputs do not contain sample sensitive values.
+
+Observed clean-clone commands:
+
+```text
+.venv\Scripts\python.exe -m unittest discover -s tests
+Ran 31 tests
+OK
+
+.venv\Scripts\python.exe -m redactgate.baseline examples/sample.log
+PASS redacted=output\sample.redacted.log report=output\sample.redaction-report.json
+
+.venv\Scripts\python.exe -m redactgate.cli examples/sample.log
+PASS redacted=output\sample.redacted.log report=output\sample.redaction-report.json
+
+.venv\Scripts\python.exe -m redactgate.eval
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+```
 
 Record the tested commit hash here:
 
