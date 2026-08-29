@@ -70,6 +70,27 @@ def load_prompt() -> str:
     return PROMPT_PATH.read_text(encoding="utf-8")
 
 
+def build_model_payload(candidates: list[CandidateWindow]) -> dict[str, object]:
+    items = [
+        {
+            "id": index,
+            "span": candidate.span,
+            "type_hint": candidate.type_hint,
+            "trigger": candidate.trigger,
+            "start": candidate.start,
+            "end": candidate.end,
+            "window": candidate.window,
+        }
+        for index, candidate in enumerate(candidates)
+    ]
+    payload_chars = sum(len(str(value)) for item in items for value in item.values())
+    return {
+        "prompt_version": PROMPT_VERSION,
+        "items": items,
+        "estimated_input_tokens": _estimate_tokens(load_prompt()) + _estimate_tokens_from_chars(payload_chars),
+    }
+
+
 def _classify_candidate(candidate: CandidateWindow) -> ClassificationDecision:
     return ClassificationDecision(
         span=candidate.span,
@@ -90,3 +111,11 @@ def _confidence(type_hint: str) -> float:
     if type_hint == "IDENTIFIER":
         return 0.9
     return 0.85
+
+
+def _estimate_tokens(text: str) -> int:
+    return _estimate_tokens_from_chars(len(text))
+
+
+def _estimate_tokens_from_chars(chars: int) -> int:
+    return max(1, (chars + 3) // 4)

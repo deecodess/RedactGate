@@ -77,5 +77,6 @@ final verification_retries=0
 format_check_passed=true
 classifier_provider=local
 prompt_version=context_classifier_v1
+estimated_candidate_input_tokens=628
 model_calls=0
 ```

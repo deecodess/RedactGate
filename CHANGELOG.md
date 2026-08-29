@@ -345,3 +345,33 @@ final safe_release_rate=1.000
 **Decision / learning**
 
 The current implementation keeps parsing lightweight and validates JSON/CSV structure after redaction.
+
+---
+
+### 2026-08-29 - Model payload boundary
+
+**What changed**
+
+Added a classifier payload builder that packages only candidate spans and their small windows, along with prompt version metadata and estimated input-token count.
+
+**Why**
+
+Before any network model provider is enabled, the code should prove that model input is bounded to ambiguous windows rather than whole artifacts.
+
+**Evidence**
+
+`python -m unittest discover -s tests` ran 33 tests successfully.
+
+`python -m redactgate.eval` generated:
+
+```text
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+estimated_candidate_input_tokens=628
+model_calls=0
+input_tokens=0
+```
+
+**Decision / learning**
+
+The model boundary is explicit but inactive by default. This keeps token use at zero while preserving the integration point for future ambiguity that deterministic rules cannot handle.

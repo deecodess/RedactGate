@@ -119,6 +119,7 @@ final verification retries: 0
 sample format check: PASS
 classifier provider: local
 prompt version: context_classifier_v1
+estimated candidate input tokens: 628
 sample preservation density: 0.476
 sample preservation status: PASS because original_chars=145 is below the 200-character density-failure floor
 

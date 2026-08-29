@@ -66,6 +66,7 @@ class EvalTests(unittest.TestCase):
         result = evaluate_cases(cases, "final")
         self.assertEqual(result["candidate_windows"], 1)
         self.assertGreater(result["candidate_window_chars"], 0)
+        self.assertGreater(result["estimated_candidate_input_tokens"], 0)
         self.assertEqual(result["safe_release_rate"], 1.0)
         self.assertEqual(result["model_calls"], 0)
 

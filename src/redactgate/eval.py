@@ -5,7 +5,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
-from .classifier import ClassificationResult, classify_candidates
+from .classifier import ClassificationResult, build_model_payload, classify_candidates
 from .context import extract_candidates
 from .detectors import scan
 from .parsers import validate_format
@@ -44,6 +44,7 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
     false_redactions = 0
     candidate_windows = 0
     candidate_window_chars = 0
+    estimated_candidate_input_tokens = 0
     model_calls = 0
     input_tokens = 0
     output_tokens = 0
@@ -61,11 +62,13 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
         if workflow_name == "final":
             candidates = extract_candidates(case.content, deterministic)
             classification = classify_candidates(candidates)
+            payload = build_model_payload(candidates)
             classifier_provider = classification.provider
             prompt_version = classification.prompt_version
             detections = combine_detections(deterministic + classification.sensitive_detections)
             candidate_windows += len(candidates)
             candidate_window_chars += sum(len(item.window) for item in candidates)
+            estimated_candidate_input_tokens += int(payload["estimated_input_tokens"]) if candidates else 0
             model_calls += classification.model_calls
             input_tokens += classification.input_tokens
             output_tokens += classification.output_tokens
@@ -109,6 +112,7 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
                 "candidate_windows": len(candidates),
                 "classified_sensitive": len(classification.sensitive_detections),
                 "verification_retries": retries,
+                "estimated_candidate_input_tokens": int(payload["estimated_input_tokens"]) if candidates else 0,
             }
         )
 
@@ -124,6 +128,7 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
         "runtime_ms": runtime_ms,
         "candidate_windows": candidate_windows,
         "candidate_window_chars": candidate_window_chars,
+        "estimated_candidate_input_tokens": estimated_candidate_input_tokens,
         "model_calls": model_calls,
         "input_tokens": input_tokens,
         "output_tokens": output_tokens,
@@ -145,6 +150,11 @@ def write_comparison(baseline: dict[str, object], final: dict[str, object]) -> N
         ("False redactions", baseline["false_redactions"], final["false_redactions"]),
         ("Candidate windows", baseline["candidate_windows"], final["candidate_windows"]),
         ("Candidate window chars", baseline["candidate_window_chars"], final["candidate_window_chars"]),
+        (
+            "Estimated candidate input tokens",
+            baseline["estimated_candidate_input_tokens"],
+            final["estimated_candidate_input_tokens"],
+        ),
         ("Verification retries", baseline["verification_retries"], final["verification_retries"]),
         ("Model calls", baseline["model_calls"], final["model_calls"]),
         ("Input tokens", baseline["input_tokens"], final["input_tokens"]),
