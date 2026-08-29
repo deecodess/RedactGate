@@ -191,12 +191,39 @@ Suggested categories:
 - `PARSER_FAILURE`
 - `CLASSIFIER_FAILURE`
 - `VERIFICATION_FAILURE`
-- `FORMAT_DAMAGE`
+- `MALFORMED_OUTPUT`
 - `UNKNOWN`
 
 Use failure analysis to decide what to improve next.
 
 Do not add architecture based on intuition alone.
+
+---
+
+## Latest local result
+
+Generated with:
+
+```bash
+python -m redactgate.eval
+```
+
+Observed output:
+
+```text
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+```
+
+Current comparison:
+
+```text
+Baseline failure categories: {'LEAK_CONTEXTUAL': 4}
+Final failure categories: {}
+Final classifier provider: local
+Final prompt version: context_classifier_v1
+Model calls: 0
+```
 
 ---
 

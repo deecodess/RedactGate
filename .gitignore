@@ -13,3 +13,4 @@ output/
 eval/results/
 trajectories/*
 !trajectories/.gitkeep
+!trajectories/*.example.json

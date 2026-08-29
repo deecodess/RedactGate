@@ -1,0 +1,88 @@
+{
+  "candidates": [],
+  "created_at": "2026-08-29T00:00:00+00:00",
+  "input_file": "sample.log",
+  "metrics": {
+    "classifier_provider": "local",
+    "estimated_model_cost": 0.0,
+    "input_tokens": 0,
+    "model_calls": 0,
+    "output_tokens": 0,
+    "prompt_version": "context_classifier_v1",
+    "redaction_count": 2,
+    "verification_retries": 0
+  },
+  "preservation": {
+    "max_redaction_density": 0.4,
+    "min_chars_for_density_failure": 200,
+    "original_chars": 145,
+    "passed": true,
+    "redacted_original_chars": 69,
+    "redaction_density": 0.47586206896551725,
+    "retained_char_ratio": 0.5241379310344827
+  },
+  "redactions": [
+    {
+      "confidence": 1.0,
+      "end": 43,
+      "reason": "Email address pattern.",
+      "replacement": "[REDACTED_EMAIL]",
+      "source": "deterministic",
+      "start": 26,
+      "type": "EMAIL"
+    },
+    {
+      "confidence": 1.0,
+      "end": 96,
+      "reason": "Authorization header credential.",
+      "replacement": "[REDACTED_TOKEN]",
+      "source": "deterministic",
+      "start": 44,
+      "type": "TOKEN"
+    }
+  ],
+  "steps": [
+    {"name": "parse", "status": "completed"},
+    {"detections": 2, "name": "deterministic_scan", "status": "completed"},
+    {
+      "candidate_window_chars": 0,
+      "candidate_windows": 0,
+      "name": "candidate_extraction",
+      "status": "completed"
+    },
+    {
+      "input_tokens": 0,
+      "model_calls": 0,
+      "name": "classification",
+      "output_tokens": 0,
+      "status": "completed"
+    },
+    {"name": "redaction", "redactions": 2, "status": "completed"},
+    {"name": "verification", "passed": true, "retries": 0, "status": "completed"}
+  ],
+  "verification": {
+    "benign_preservation": 1.0,
+    "estimated_preservation": {
+      "max_redaction_density": 0.4,
+      "min_chars_for_density_failure": 200,
+      "original_chars": 145,
+      "passed": true,
+      "redacted_original_chars": 69,
+      "redaction_density": 0.47586206896551725,
+      "retained_char_ratio": 0.5241379310344827
+    },
+    "format_check_passed": true,
+    "format_validation": {
+      "format": "log",
+      "passed": true,
+      "reason": "No structural validation required."
+    },
+    "missing_benign_count": 0,
+    "obvious_secret_scan_passed": true,
+    "preservation_check_passed": true,
+    "remaining_findings": []
+  },
+  "version": 1,
+  "workflow": "final"
+}
+

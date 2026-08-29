@@ -128,6 +128,12 @@ Output tokens: 0
 Estimated model cost: 0.0
 ```
 
+Representative sanitized trajectory:
+
+```text
+trajectories/sample.final.trajectory.example.json
+```
+
 Do not estimate these if the tool/provider exposes actual values.
 
 ---

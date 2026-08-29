@@ -2,6 +2,10 @@
 
 RedactGate sanitizes text-first developer/support artifacts before sharing. The current milestone includes a deterministic baseline, a local contextual classifier, and a synthetic evaluation harness.
 
+Main failure mode: unlabeled or implicit PII that does not match deterministic rules or the current contextual labels may survive.
+
+Hot take: the useful privacy agent is mostly not an agent. The safer first move is a small verified pipeline that spends model tokens only when deterministic code cannot decide.
+
 Supported inputs:
 
 - `.txt`
@@ -47,6 +51,8 @@ Outputs are written to `output/` by default:
 Final workflow trajectories are written as:
 
 - `trajectories/<name>.final.trajectory.json`
+
+A committed sanitized example is available at `trajectories/sample.final.trajectory.example.json`.
 
 Reports include an estimated preservation section with original size, redacted span density, retained character ratio, and the configured density threshold.
 JSON and CSV outputs are structurally validated before the report status is marked `PASS`.

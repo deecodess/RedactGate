@@ -260,3 +260,23 @@ model_calls=0
 **Decision / learning**
 
 The provider interface rejects unsupported providers for now. A network model can be added later behind the same structured result type without changing the baseline path.
+
+---
+
+### 2026-08-29 - Deliverable documentation artifacts
+
+**What changed**
+
+Added a demo video outline, committed a sanitized representative trajectory example, updated the README with the main failure mode and project insight, and recorded the latest generated evaluation summary in `EVALUATION.md`.
+
+**Why**
+
+The project deliverables require a demo path, representative trajectories without secrets, and clear reproduction/evaluation context.
+
+**Evidence**
+
+The committed trajectory example contains redaction metadata, counts, verifier status, and model/token metrics without raw sensitive values.
+
+**Decision / learning**
+
+Generated runtime trajectories remain ignored. Only the stable `.example.json` trajectory is committed as a reviewable artifact.
