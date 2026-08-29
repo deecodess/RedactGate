@@ -51,7 +51,7 @@ python -m unittest discover -s tests
 Expected outcome:
 
 ```text
-Ran 22 tests
+Ran 24 tests
 OK
 ```
 
@@ -116,6 +116,8 @@ baseline failure categories: {'LEAK_CONTEXTUAL': 4}
 final failure categories: {}
 baseline verification retries: 0
 final verification retries: 0
+sample preservation density: 0.476
+sample preservation status: PASS because original_chars=145 is below the 200-character density-failure floor
 
 Model calls: 0
 Input tokens: 0

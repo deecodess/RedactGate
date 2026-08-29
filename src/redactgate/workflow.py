@@ -9,6 +9,7 @@ from .parsers import load_text
 from .redactor import combine_detections, redact_with_verification_retries
 from .report import build_report, write_json
 from .trajectory import build_trajectory, write_trajectory
+from .verifier import estimate_preservation
 
 
 def sanitize_file(
@@ -35,6 +36,9 @@ def sanitize_file(
         detections,
         max_retries=max_verification_retries,
     )
+    preservation = estimate_preservation(text, result.detections)
+    verification["preservation_check_passed"] = preservation["passed"]
+    verification["estimated_preservation"] = preservation
     report = build_report(input_path, result, verification)
     report["metrics"]["verification_retries"] = verification_retries
     report["context"] = {

@@ -67,6 +67,19 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(report["status"], "PASS")
             self.assertNotIn("alice@example.com", redacted_path.read_text(encoding="utf-8"))
 
+    def test_report_flags_excessive_redaction_density(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            source = base / "sample.txt"
+            output = base / "out"
+            source.write_text("api_key=" + "x" * 600, encoding="utf-8")
+
+            _, _, report = sanitize_file(source, output)
+
+            self.assertEqual(report["status"], "FAIL")
+            self.assertFalse(report["verification"]["preservation_check_passed"])
+            self.assertGreater(report["verification"]["estimated_preservation"]["redaction_density"], 0.4)
+
 
 if __name__ == "__main__":
     unittest.main()

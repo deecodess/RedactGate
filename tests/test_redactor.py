@@ -1,7 +1,8 @@
 import unittest
 
 from redactgate.redactor import redact_text, redact_with_verification_retries
-from redactgate.verifier import verify_gold_release, verify_text
+from redactgate.models import Detection
+from redactgate.verifier import estimate_preservation, verify_gold_release, verify_text
 
 
 class RedactorTests(unittest.TestCase):
@@ -53,6 +54,15 @@ class RedactorTests(unittest.TestCase):
         )
         self.assertFalse(verification["passed"])
         self.assertEqual(verification["failure_categories"], ["OVER_REDACTION"])
+
+    def test_estimated_preservation_uses_covered_detection_spans(self) -> None:
+        detections = [
+            Detection(0, 10, "SECRET", "test", 1.0, "test", "x" * 10),
+            Detection(5, 15, "SECRET", "test", 1.0, "test", "x" * 10),
+        ]
+        preservation = estimate_preservation("x" * 100, detections)
+        self.assertEqual(preservation["redacted_original_chars"], 15)
+        self.assertEqual(preservation["redaction_density"], 0.15)
 
 
 if __name__ == "__main__":

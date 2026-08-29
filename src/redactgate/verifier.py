@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .models import Detection
 from .detectors import scan
 
 
@@ -15,6 +16,29 @@ def verify_text(text: str, must_preserve: list[str] | None = None, preservation_
     }
 
 
+def estimate_preservation(
+    original_text: str,
+    detections: list[Detection],
+    *,
+    max_redaction_density: float = 0.4,
+    min_chars_for_density_failure: int = 200,
+) -> dict[str, object]:
+    original_chars = len(original_text)
+    redacted_chars = _covered_chars(detections)
+    redaction_density = 0.0 if original_chars == 0 else redacted_chars / original_chars
+    retained_char_ratio = 1.0 - redaction_density
+    passed = original_chars < min_chars_for_density_failure or redaction_density <= max_redaction_density
+    return {
+        "passed": passed,
+        "original_chars": original_chars,
+        "redacted_original_chars": redacted_chars,
+        "retained_char_ratio": retained_char_ratio,
+        "redaction_density": redaction_density,
+        "max_redaction_density": max_redaction_density,
+        "min_chars_for_density_failure": min_chars_for_density_failure,
+    }
+
+
 def verify_preservation(text: str, must_preserve: list[str], threshold: float = 0.95) -> dict[str, object]:
     kept = [item for item in must_preserve if item in text]
     missing_count = len(must_preserve) - len(kept)
@@ -24,6 +48,23 @@ def verify_preservation(text: str, must_preserve: list[str], threshold: float = 
         "score": score,
         "missing_count": missing_count,
     }
+
+
+def _covered_chars(detections: list[Detection]) -> int:
+    ranges = sorted((item.start, item.end) for item in detections if item.end > item.start)
+    if not ranges:
+        return 0
+
+    total = 0
+    current_start, current_end = ranges[0]
+    for start, end in ranges[1:]:
+        if start <= current_end:
+            current_end = max(current_end, end)
+            continue
+        total += current_end - current_start
+        current_start, current_end = start, end
+    total += current_end - current_start
+    return total
 
 
 def verify_gold_release(

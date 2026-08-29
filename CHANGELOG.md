@@ -170,3 +170,34 @@ The retry path is covered by a workflow regression test that simulates an initia
 **Decision / learning**
 
 Retries are capped by default at one pass. This satisfies the bounded-retry requirement without hiding persistent verifier failures behind an infinite loop.
+
+---
+
+### 2026-08-29 - CLI preservation scoring
+
+**What changed**
+
+Added estimated preservation scoring to normal CLI reports. Reports now include original character count, redacted original characters, retained character ratio, redaction density, and density thresholds.
+
+**Why**
+
+Non-evaluation runs need a visible signal for accidental over-redaction, even when there are no gold `must_preserve` spans.
+
+**Evidence**
+
+`python -m unittest discover -s tests` ran 24 tests successfully.
+
+`python -m redactgate.eval` generated:
+
+```text
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+```
+
+`python -m redactgate.baseline examples/sample.log` and `python -m redactgate.cli examples/sample.log` both returned `PASS`.
+
+The sample report recorded redaction density `0.476` and passed because the artifact has 145 characters, below the 200-character density-failure floor.
+
+**Decision / learning**
+
+Redaction density is useful as a warning signal, but it is too noisy to fail very small files. The CLI therefore reports density for every file and only fails density checks once the artifact is large enough for the ratio to be meaningful.

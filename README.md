@@ -47,6 +47,8 @@ Final workflow trajectories are written as:
 
 - `trajectories/<name>.final.trajectory.json`
 
+Reports include an estimated preservation section with original size, redacted span density, retained character ratio, and the configured density threshold.
+
 ## Run Evaluation
 
 ```bash

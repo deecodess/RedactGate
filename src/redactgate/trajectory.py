@@ -51,6 +51,7 @@ def build_trajectory(
         "redactions": [item.to_report() for item in result.detections],
         "candidates": [item.to_report() for item in candidates],
         "verification": verification,
+        "preservation": verification.get("estimated_preservation", {}),
         "metrics": metrics,
     }
 
