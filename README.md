@@ -32,6 +32,7 @@ python -m redactgate.baseline path/to/input.log
 ```
 
 The baseline uses deterministic rules only.
+Use `--max-bytes` to override the default 1,000,000 byte input limit.
 
 ## Run RedactGate
 

@@ -375,3 +375,32 @@ input_tokens=0
 **Decision / learning**
 
 The model boundary is explicit but inactive by default. This keeps token use at zero while preserving the integration point for future ambiguity that deterministic rules cannot handle.
+
+---
+
+### 2026-08-29 - CLI size limit and errors
+
+**What changed**
+
+Added `--max-bytes` to both baseline and final CLIs, passed the configurable size limit through the workflow, and converted parser/workflow failures into concise CLI errors.
+
+**Why**
+
+The MVP requires a conservative configurable file-size limit, and users should see understandable errors instead of stack traces for unsupported inputs or oversized files.
+
+**Evidence**
+
+`python -m unittest discover -s tests` ran 36 tests successfully.
+
+`python -m redactgate.eval` generated:
+
+```text
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+```
+
+`python -m redactgate.cli examples/sample.log --max-bytes 1000000` returned `PASS`.
+
+**Decision / learning**
+
+The default input limit remains 1,000,000 bytes. This is intentionally conservative for the first CLI version.

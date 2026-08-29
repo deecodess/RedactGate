@@ -5,7 +5,7 @@ from pathlib import Path
 from .classifier import classify_candidates
 from .context import extract_candidates
 from .detectors import scan
-from .parsers import load_text, validate_format
+from .parsers import DEFAULT_MAX_BYTES, load_text, validate_format
 from .redactor import combine_detections, redact_with_verification_retries
 from .report import build_report, write_json
 from .trajectory import build_trajectory, write_trajectory
@@ -20,8 +20,9 @@ def sanitize_file(
     classifier_provider: str = "local",
     trajectory_dir: Path | None = None,
     max_verification_retries: int = 1,
+    max_bytes: int = DEFAULT_MAX_BYTES,
 ) -> tuple[Path, Path, dict[str, object]]:
-    text = load_text(input_path)
+    text = load_text(input_path, max_bytes=max_bytes)
     deterministic = scan(text)
     candidates = []
     classification = None

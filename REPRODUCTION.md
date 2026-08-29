@@ -12,6 +12,7 @@ The final version should allow another developer to reproduce the main workflow 
 Python: 3.13.5
 OS tested: Windows
 Package manager: pip 25.1.1
+Default max input size: 1,000,000 bytes
 ```
 
 ---
@@ -51,7 +52,7 @@ python -m unittest discover -s tests
 Expected outcome:
 
 ```text
-Ran 32 tests
+Ran 36 tests
 OK
 ```
 
