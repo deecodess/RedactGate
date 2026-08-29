@@ -1,0 +1,123 @@
+[
+  {
+    "id": "case_001",
+    "format": "log",
+    "description": "Email and bearer token in a log line.",
+    "content": "2026-01-01T10:00:00Z user alice@example.com Authorization: Bearer tok_abcdefghijklmnopqrstuvwxyz status HTTP 500 request_id=550e8400-e29b-41d4-a716-446655440000",
+    "sensitive": [
+      {"value": "alice@example.com", "type": "EMAIL"},
+      {"value": "Authorization: Bearer tok_abcdefghijklmnopqrstuvwxyz", "type": "TOKEN"}
+    ],
+    "must_preserve": ["HTTP 500", "550e8400-e29b-41d4-a716-446655440000"]
+  },
+  {
+    "id": "case_002",
+    "format": "json",
+    "description": "JSON API key with benign request ID.",
+    "content": "{\"api_key\":\"sk-abcdefghijklmnopqrstuvwxyz123456\",\"request_id\":\"req_01HXSAFEID\",\"status\":200}",
+    "sensitive": [
+      {"value": "sk-abcdefghijklmnopqrstuvwxyz123456", "type": "TOKEN"}
+    ],
+    "must_preserve": ["req_01HXSAFEID", "\"status\":200"]
+  },
+  {
+    "id": "case_003",
+    "format": "txt",
+    "description": "Database URL with embedded credentials.",
+    "content": "DATABASE_URL=postgresql://app_user:synthetic_password@db.example.test:5432/appdb feature_flag=true",
+    "sensitive": [
+      {"value": "postgresql://app_user:synthetic_password@db.example.test:5432/appdb", "type": "DATABASE_URL"}
+    ],
+    "must_preserve": ["feature_flag=true"]
+  },
+  {
+    "id": "case_004",
+    "format": "txt",
+    "description": "Customer name after explicit label, expected future contextual catch.",
+    "content": "Customer: Marcus Williams reported error E_CONN_RESET on route /checkout.",
+    "sensitive": [
+      {"value": "Marcus Williams", "type": "PERSON_NAME"}
+    ],
+    "must_preserve": ["E_CONN_RESET", "/checkout"]
+  },
+  {
+    "id": "case_005",
+    "format": "txt",
+    "description": "Postal address in support note, expected future contextual catch.",
+    "content": "Ship-to address: 742 Evergreen Terrace, Springfield, IL 62704. Error code remains HTTP 409.",
+    "sensitive": [
+      {"value": "742 Evergreen Terrace, Springfield, IL 62704", "type": "ADDRESS"}
+    ],
+    "must_preserve": ["HTTP 409"]
+  },
+  {
+    "id": "case_006",
+    "format": "log",
+    "description": "Phone number near timestamps.",
+    "content": "2026-01-01 10:22:13 callback +1 415-555-0199 completed in 238ms.",
+    "sensitive": [
+      {"value": "+1 415-555-0199", "type": "PHONE"}
+    ],
+    "must_preserve": ["2026-01-01 10:22:13", "238ms"]
+  },
+  {
+    "id": "case_007",
+    "format": "txt",
+    "description": "Repeated sensitive value.",
+    "content": "Contact dana@example.com. Retry notice also sent to dana@example.com. Build id build-7788 survived.",
+    "sensitive": [
+      {"value": "dana@example.com", "type": "EMAIL"},
+      {"value": "dana@example.com", "type": "EMAIL"}
+    ],
+    "must_preserve": ["build-7788"]
+  },
+  {
+    "id": "case_008",
+    "format": "csv",
+    "description": "CSV with sensitive and benign columns.",
+    "content": "ticket,email,status\nT-100,owner@example.com,open\nT-101,noreply@example.com,closed\n",
+    "sensitive": [
+      {"value": "owner@example.com", "type": "EMAIL"},
+      {"value": "noreply@example.com", "type": "EMAIL"}
+    ],
+    "must_preserve": ["T-100", "T-101", "open", "closed"]
+  },
+  {
+    "id": "case_009",
+    "format": "json",
+    "description": "UUID must remain untouched.",
+    "content": "{\"request_id\":\"550e8400-e29b-41d4-a716-446655440000\",\"message\":\"missing token but no value\"}",
+    "sensitive": [],
+    "must_preserve": ["550e8400-e29b-41d4-a716-446655440000", "missing token but no value"]
+  },
+  {
+    "id": "case_010",
+    "format": "txt",
+    "description": "Mixed deterministic and contextual content.",
+    "content": "Account holder: Priya Shah email priya.shah@example.com saw payment error PAY_402.",
+    "sensitive": [
+      {"value": "Priya Shah", "type": "PERSON_NAME"},
+      {"value": "priya.shah@example.com", "type": "EMAIL"}
+    ],
+    "must_preserve": ["PAY_402"]
+  },
+  {
+    "id": "case_011",
+    "format": "txt",
+    "description": "Ambiguous numeric identifier, expected future contextual catch.",
+    "content": "Patient ID 782913445 should not be shared. Queue depth 42 and HTTP 202 should survive.",
+    "sensitive": [
+      {"value": "782913445", "type": "IDENTIFIER"}
+    ],
+    "must_preserve": ["Queue depth 42", "HTTP 202"]
+  },
+  {
+    "id": "case_012",
+    "format": "log",
+    "description": "Over-redaction trap with benign token word.",
+    "content": "Parser saw token keyword in docs but no credential. status=ok path=/docs/tokenization request_id=req_public_123",
+    "sensitive": [],
+    "must_preserve": ["token keyword", "/docs/tokenization", "req_public_123"]
+  }
+]
+

@@ -1,0 +1,339 @@
+# RedactGate — Build Plan
+
+This plan is intentionally small.
+
+Each phase should finish in a working state and should normally end with a focused Git commit.
+
+Do not move to the next phase just because code exists. Run the relevant tests first.
+
+---
+
+## Phase 0 — Inspect and scaffold
+
+### Tasks
+
+- inspect repository state;
+- identify Python/runtime version;
+- create package skeleton;
+- add test framework;
+- add `.gitignore`;
+- add `.env.example`;
+- add minimal README;
+- confirm a clean test command works.
+
+### Exit condition
+
+A clean checkout can install dependencies and run the empty/minimal test suite.
+
+### Commit
+
+Suggested:
+
+```text
+chore: scaffold redactgate project
+```
+
+---
+
+## Phase 1 — Build the deterministic baseline
+
+### Tasks
+
+Implement:
+
+- file loading;
+- TXT/LOG handling;
+- JSON handling;
+- CSV handling;
+- high-confidence regex/rule detection;
+- typed placeholder replacement;
+- baseline CLI;
+- unit tests.
+
+Start with obvious categories only.
+
+Do not add model calls yet.
+
+### Exit condition
+
+The baseline can sanitize supported files and produce a report.
+
+### Commit
+
+Suggested:
+
+```text
+feat: add deterministic redaction baseline
+```
+
+Update `docs/CHANGELOG.md`.
+
+---
+
+## Phase 2 — Build evaluation before the model
+
+### Tasks
+
+Create synthetic benchmark cases with gold labels.
+
+Each case should specify:
+
+- source artifact;
+- expected sensitive spans/categories;
+- benign spans/items that must survive.
+
+Implement metrics:
+
+- sensitive recall;
+- benign preservation;
+- false-redaction count;
+- Safe Release Rate.
+
+Run the baseline and save real results.
+
+### Exit condition
+
+A single command evaluates the baseline and creates machine-readable plus readable output.
+
+### Commit
+
+Suggested:
+
+```text
+test: add synthetic redaction benchmark
+```
+
+Update `docs/CHANGELOG.md`.
+
+If the user explicitly decided the evaluation scope or metric, this is an appropriate place for an occasional note such as:
+
+> Deepanshi made this decision to keep the benchmark small, explicit, and reproducible.
+
+Only include such wording if it accurately reflects the actual user decision.
+
+---
+
+## Phase 3 — Candidate extraction
+
+### Tasks
+
+Create small candidate windows for context-dependent content.
+
+Possible triggers:
+
+- `Customer:`
+- `User:`
+- `Name:`
+- `Account holder:`
+- `Ship to:`
+- `Address:`
+- suspicious but ambiguous numeric strings;
+- other explicit field labels.
+
+Keep the mechanism deterministic.
+
+Do not send the whole file to the model.
+
+### Exit condition
+
+Tests demonstrate that candidate extraction selects the relevant region and excludes unrelated text.
+
+### Commit
+
+Suggested:
+
+```text
+feat: extract ambiguous sensitive-data candidates
+```
+
+---
+
+## Phase 4 — Add contextual classification
+
+### Tasks
+
+Add one structured-output model call path.
+
+Requirements:
+
+- version the prompt;
+- validate response schema;
+- set a confidence threshold;
+- handle malformed responses;
+- bound retries;
+- measure call count and tokens when possible;
+- never place secrets into normal application logs.
+
+### Exit condition
+
+The contextual classifier correctly handles at least the contextual benchmark cases.
+
+### Commit
+
+Suggested:
+
+```text
+feat: classify ambiguous sensitive spans
+```
+
+Update `docs/CHANGELOG.md`.
+
+---
+
+## Phase 5 — Integrate hybrid redaction
+
+### Tasks
+
+Combine:
+
+```text
+deterministic findings
++
+contextual findings
+```
+
+Resolve overlap deterministically.
+
+Apply stable placeholders.
+
+Ensure repeated sensitive values are treated consistently within one artifact.
+
+### Exit condition
+
+The final workflow produces a sanitized artifact and structured report.
+
+### Commit
+
+Suggested:
+
+```text
+feat: combine deterministic and contextual redaction
+```
+
+---
+
+## Phase 6 — Add independent verification
+
+### Tasks
+
+After redaction:
+
+- rerun high-confidence secret scanners;
+- ensure output is parseable when input is JSON/CSV;
+- run preservation checks;
+- expose PASS / FAIL / REVIEW;
+- add bounded retry only if there is a targeted correction path.
+
+### Exit condition
+
+The workflow refuses to report PASS when verification fails.
+
+### Commit
+
+Suggested:
+
+```text
+feat: verify sanitized artifacts before release
+```
+
+Update `docs/CHANGELOG.md`.
+
+This is also an appropriate place to record a real user-directed safety decision, for example:
+
+> The user, Deepanshi, chose to require a second verification pass before a file can be marked safe.
+
+Do not add the sentence unless that is true.
+
+---
+
+## Phase 7 — Compare baseline and final workflow
+
+### Tasks
+
+Run the exact same cases through both.
+
+Generate:
+
+- baseline results;
+- final results;
+- comparison table;
+- failures;
+- token/model-call statistics;
+- runtime statistics.
+
+Do not hide failed cases.
+
+### Exit condition
+
+`docs/EVALUATION.md` contains real, reproducible numbers generated by the evaluation command.
+
+### Commit
+
+Suggested:
+
+```text
+eval: compare baseline and hybrid workflow
+```
+
+Update `docs/CHANGELOG.md`.
+
+---
+
+## Phase 8 — Reproduction and cleanup
+
+### Tasks
+
+- run tests from a clean environment;
+- verify exact setup commands;
+- remove temporary files;
+- remove dead code;
+- remove unused dependencies;
+- check repository for secrets;
+- make README concise;
+- finish `docs/REPRODUCTION.md`;
+- save representative sanitized trajectories.
+
+### Exit condition
+
+Another developer can clone, set up, run tests, sanitize an example, and reproduce evaluation.
+
+### Commit
+
+Suggested:
+
+```text
+docs: finalize reproducible redactgate workflow
+```
+
+---
+
+# Commit Rule
+
+After each important phase:
+
+```text
+implement
+→ test
+→ inspect diff
+→ update changelog if meaningful
+→ commit
+→ continue
+```
+
+Do not wait until the entire project is finished before committing.
+
+Avoid meaningless commits for typo-level edits unless they accompany a logical step.
+
+---
+
+# Stop Conditions
+
+Do not add another feature when:
+
+- current tests are failing;
+- evaluation is not reproducible;
+- existing failure modes are unexplained;
+- the feature has no measurable purpose;
+- it significantly increases model usage without improving safety or preservation.
+
+Finish the current layer first.
