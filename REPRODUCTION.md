@@ -168,7 +168,7 @@ Observed clean-clone commands:
 
 ```text
 .venv\Scripts\python.exe -m unittest discover -s tests
-Ran 31 tests
+Ran 36 tests
 OK
 
 .venv\Scripts\python.exe -m redactgate.baseline examples/sample.log

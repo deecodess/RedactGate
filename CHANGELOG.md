@@ -404,3 +404,41 @@ final safe_release_rate=1.000
 **Decision / learning**
 
 The default input limit remains 1,000,000 bytes. This is intentionally conservative for the first CLI version.
+
+---
+
+### 2026-08-29 - Final clean reproduction refresh
+
+**What changed**
+
+Refreshed the clean-clone reproduction transcript after adding CLI input-limit tests.
+
+**Why**
+
+The reproduction guide should reflect the latest test suite and current HEAD behavior.
+
+**Evidence**
+
+A fresh local clone with a fresh virtual environment ran:
+
+```text
+.venv\Scripts\python.exe -m unittest discover -s tests
+Ran 36 tests
+OK
+
+.venv\Scripts\python.exe -m redactgate.baseline examples/sample.log
+PASS redacted=output\sample.redacted.log report=output\sample.redaction-report.json
+
+.venv\Scripts\python.exe -m redactgate.cli examples/sample.log
+PASS redacted=output\sample.redacted.log report=output\sample.redaction-report.json
+
+.venv\Scripts\python.exe -m redactgate.eval
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+```
+
+Expected output paths existed, and generated outputs did not contain the sample sensitive values.
+
+**Decision / learning**
+
+The final reproduction flow remains dependency-light. The only network need observed in the sandbox was build-backend installation for editable package setup.
