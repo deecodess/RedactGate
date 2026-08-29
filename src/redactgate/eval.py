@@ -8,6 +8,7 @@ from pathlib import Path
 from .classifier import ClassificationResult, classify_candidates
 from .context import extract_candidates
 from .detectors import scan
+from .parsers import validate_format
 from .redactor import combine_detections, redact_with_verification_retries
 from .report import write_json
 from .verifier import verify_gold_release
@@ -73,6 +74,12 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
             case.must_preserve,
             PRESERVATION_THRESHOLD,
         )
+        format_validation = validate_format(case.format, result.text)
+        verification["format_check_passed"] = format_validation["passed"]
+        verification["format_validation"] = format_validation
+        if not format_validation["passed"]:
+            verification["passed"] = False
+            verification["failure_categories"].append("MALFORMED_OUTPUT")
 
         total_sensitive += len(case.sensitive)
         redacted_sensitive += len(case.sensitive) - int(verification["leaked_sensitive_count"])

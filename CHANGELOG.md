@@ -201,3 +201,32 @@ The sample report recorded redaction density `0.476` and passed because the arti
 **Decision / learning**
 
 Redaction density is useful as a warning signal, but it is too noisy to fail very small files. The CLI therefore reports density for every file and only fails density checks once the artifact is large enough for the ratio to be meaningful.
+
+---
+
+### 2026-08-29 - Format validation checks
+
+**What changed**
+
+Added structural validation for JSON and CSV sanitized outputs. Reports now include `format_check_passed` and format-validation details, and evaluation can categorize malformed output as `MALFORMED_OUTPUT`.
+
+**Why**
+
+A sanitized file should not be considered releasable if redaction leaves it malformed. This is especially important for JSON and CSV artifacts that users may feed into other tooling.
+
+**Evidence**
+
+`python -m unittest discover -s tests` ran 29 tests successfully.
+
+`python -m redactgate.eval` generated:
+
+```text
+baseline safe_release_rate=0.667
+final safe_release_rate=1.000
+```
+
+Both sample CLIs returned `PASS`, and the sample report recorded `format_check_passed=true`.
+
+**Decision / learning**
+
+JSON uses strict standard-library parsing. CSV validation checks parse errors and inconsistent row widths as a small, deterministic malformed-output signal.

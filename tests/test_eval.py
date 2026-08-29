@@ -21,6 +21,21 @@ class EvalTests(unittest.TestCase):
         self.assertEqual(result["benign_preservation"], 1.0)
         self.assertEqual(result["verification_retries"], 0)
 
+    def test_eval_records_malformed_output_failure(self) -> None:
+        cases = [
+            EvalCase(
+                id="bad_json",
+                format="json",
+                description="bad json",
+                content='{"email":',
+                sensitive=[],
+                must_preserve=[],
+            )
+        ]
+        result = evaluate_cases(cases, "baseline")
+        self.assertEqual(result["safe_release_rate"], 0.0)
+        self.assertEqual(result["cases"][0]["failure_categories"], ["MALFORMED_OUTPUT"])
+
     def test_baseline_eval_records_failure_categories(self) -> None:
         cases = [
             EvalCase(

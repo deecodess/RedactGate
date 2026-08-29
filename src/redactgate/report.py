@@ -7,7 +7,11 @@ from .models import RedactionResult
 
 
 def build_report(input_file: Path, result: RedactionResult, verification: dict[str, object]) -> dict[str, object]:
-    passed = verification["obvious_secret_scan_passed"] and verification["preservation_check_passed"]
+    passed = (
+        verification["obvious_secret_scan_passed"]
+        and verification["preservation_check_passed"]
+        and verification["format_check_passed"]
+    )
     status = "PASS" if passed else "FAIL"
     return {
         "input_file": str(input_file),

@@ -13,6 +13,7 @@ def verify_text(text: str, must_preserve: list[str] | None = None, preservation_
         "preservation_check_passed": preservation["passed"],
         "benign_preservation": preservation["score"],
         "missing_benign_count": preservation["missing_count"],
+        "format_check_passed": True,
     }
 
 

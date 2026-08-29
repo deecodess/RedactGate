@@ -5,7 +5,7 @@ from pathlib import Path
 from .classifier import classify_candidates
 from .context import extract_candidates
 from .detectors import scan
-from .parsers import load_text
+from .parsers import load_text, validate_format
 from .redactor import combine_detections, redact_with_verification_retries
 from .report import build_report, write_json
 from .trajectory import build_trajectory, write_trajectory
@@ -39,6 +39,9 @@ def sanitize_file(
     preservation = estimate_preservation(text, result.detections)
     verification["preservation_check_passed"] = preservation["passed"]
     verification["estimated_preservation"] = preservation
+    format_validation = validate_format(input_path, result.text)
+    verification["format_check_passed"] = format_validation["passed"]
+    verification["format_validation"] = format_validation
     report = build_report(input_path, result, verification)
     report["metrics"]["verification_retries"] = verification_retries
     report["context"] = {

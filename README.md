@@ -48,6 +48,7 @@ Final workflow trajectories are written as:
 - `trajectories/<name>.final.trajectory.json`
 
 Reports include an estimated preservation section with original size, redacted span density, retained character ratio, and the configured density threshold.
+JSON and CSV outputs are structurally validated before the report status is marked `PASS`.
 
 ## Run Evaluation
 
@@ -66,5 +67,6 @@ baseline failure categories={'LEAK_CONTEXTUAL': 4}
 final failure categories={}
 baseline verification_retries=0
 final verification_retries=0
+format_check_passed=true
 model_calls=0
 ```

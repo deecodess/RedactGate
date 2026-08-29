@@ -20,6 +20,7 @@ class WorkflowTests(unittest.TestCase):
             self.assertTrue(redacted_path.exists())
             self.assertTrue(report_path.exists())
             self.assertEqual(report["status"], "PASS")
+            self.assertTrue(report["verification"]["format_check_passed"])
             self.assertNotIn("alice@example.com", redacted_path.read_text(encoding="utf-8"))
             persisted = json.loads(report_path.read_text(encoding="utf-8"))
             self.assertNotIn("alice@example.com", json.dumps(persisted))
