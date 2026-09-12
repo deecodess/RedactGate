@@ -18,3 +18,4 @@ trajectories/*
 !trajectories/*.example.json
 *.md
 !CHANGELOG.md
+.vercel
