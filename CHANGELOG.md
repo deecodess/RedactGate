@@ -477,3 +477,21 @@ model_calls=0
 **Decision / learning**
 
 Structured scanning improves baseline coverage without model calls. The final workflow still needs real-world file testing before it should be called production-ready.
+
+### 2026-09-12 - Add Vercel deployment UI
+
+**What changed**
+
+Added a production Vercel deployment path with a static frontend, serverless Python sanitization endpoint, transient upload processing, security headers, and a cream/blue monospace interface.
+
+**Why**
+
+The local UI needed a simple deployment target without changing the existing CLI workflow.
+
+**Evidence**
+
+The full test suite passes with 42 tests, and the serverless upload path returned `PASS` for the representative sample without remaining findings.
+
+**Decision / learning**
+
+Vercel is the first hosting target because its Python Functions runtime maps cleanly to the existing backend. Public access protection should be added before accepting real sensitive artifacts.
