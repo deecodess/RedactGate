@@ -1,0 +1,12 @@
+Context Classifier Prompt v1
+
+Classify only the provided candidate windows. Do not infer from text outside the window.
+
+Return structured JSON with an items array. Each item must include:
+- span: candidate span text
+- type: PERSON_NAME, ADDRESS, or IDENTIFIER
+- sensitive: boolean
+- confidence: number from 0 to 1
+- reason: concise explanation
+
+Use sensitive=false when the span is clearly benign technical context.

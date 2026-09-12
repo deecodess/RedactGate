@@ -8,7 +8,7 @@ from .models import Detection
 
 
 PROMPT_VERSION = "context_classifier_v1"
-PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / f"{PROMPT_VERSION}.md"
+PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / f"{PROMPT_VERSION}.txt"
 DEFAULT_PROVIDER = "local"
 
 

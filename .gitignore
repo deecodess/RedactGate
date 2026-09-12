@@ -16,3 +16,5 @@ eval/results/
 trajectories/*
 !trajectories/.gitkeep
 !trajectories/*.example.json
+*.md
+!CHANGELOG.md
