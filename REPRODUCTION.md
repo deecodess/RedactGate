@@ -52,7 +52,7 @@ python -m unittest discover -s tests
 Expected outcome:
 
 ```text
-Ran 36 tests
+Ran 42 tests
 OK
 ```
 
@@ -111,16 +111,16 @@ Only keep names that match the real implementation.
 
 ```text
 Observed command output:
-baseline safe_release_rate=0.667
+baseline safe_release_rate=0.688
 final safe_release_rate=1.000
-baseline failure categories: {'LEAK_CONTEXTUAL': 4}
+baseline failure categories: {'LEAK_CONTEXTUAL': 5}
 final failure categories: {}
 baseline verification retries: 0
 final verification retries: 0
 sample format check: PASS
 classifier provider: local
 prompt version: context_classifier_v1
-estimated candidate input tokens: 628
+estimated candidate input tokens: 797
 sample preservation density: 0.476
 sample preservation status: PASS because original_chars=145 is below the 200-character density-failure floor
 
@@ -168,7 +168,7 @@ Observed clean-clone commands:
 
 ```text
 .venv\Scripts\python.exe -m unittest discover -s tests
-Ran 36 tests
+Ran 42 tests
 OK
 
 .venv\Scripts\python.exe -m redactgate.baseline examples/sample.log
@@ -178,7 +178,7 @@ PASS redacted=output\sample.redacted.log report=output\sample.redaction-report.j
 PASS redacted=output\sample.redacted.log report=output\sample.redaction-report.json
 
 .venv\Scripts\python.exe -m redactgate.eval
-baseline safe_release_rate=0.667
+baseline safe_release_rate=0.688
 final safe_release_rate=1.000
 ```
 

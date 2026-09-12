@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RedactGate // safe release</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="RedactGate home"><span class="brand-mark">RG</span><span>REDACTGATE</span></a>
+    <span class="status-chip"><i></i> LOCAL / PRIVATE</span>
+  </header>
+
+  <main>
+    <section class="hero reveal">
+      <p class="eyebrow">ARTIFACT SANITIZER <span>///</span> v0.1</p>
+      <h1>Release the useful.<br><em>Redact the risky.</em></h1>
+      <p class="lede">A small, verifiable privacy gate for developer and support artifacts. Your file stays on this machine.</p>
+    </section>
+
+    <section class="workspace reveal delay-1" id="workspace">
+      <form id="upload-form" class="dropzone" enctype="multipart/form-data">
+        <input id="file-input" type="file" name="file" accept=".txt,.log,.json,.csv" hidden>
+        <div class="drop-icon">â†³</div>
+        <p class="drop-title">Drop an artifact here</p>
+        <p class="drop-subtitle">or <button type="button" id="browse-button">browse files</button></p>
+        <p class="file-types">TXT Â· LOG Â· JSON Â· CSV <span>Â·</span> max 1 MB</p>
+        <div id="selected-file" class="selected-file" hidden></div>
+        <button class="primary-button" id="sanitize-button" type="submit" disabled>Sanitize artifact <span>â†’</span></button>
+      </form>
+      <aside class="how-it-works">
+        <p class="eyebrow">THE GATE</p>
+        <div class="gate-step"><span>01</span><p><strong>Detect</strong><br>Deterministic rules find obvious secrets.</p></div>
+        <div class="gate-step"><span>02</span><p><strong>Redact</strong><br>Stable typed placeholders preserve context.</p></div>
+        <div class="gate-step"><span>03</span><p><strong>Verify</strong><br>An independent scan checks the release.</p></div>
+      </aside>
+    </section>
+
+    <section id="results" class="results reveal" hidden>
+      <div class="result-heading">
+        <div><p class="eyebrow">SANITIZATION RESULT</p><h2 id="result-title">Artifact ready</h2></div>
+        <div id="result-status" class="result-status"></div>
+      </div>
+      <div class="metrics" id="metrics"></div>
+      <div class="result-grid">
+        <div class="panel"><div class="panel-heading"><span>SAFE OUTPUT</span><button id="copy-button" class="quiet-button">copy</button></div><pre id="sanitized-output"></pre></div>
+        <div class="panel"><div class="panel-heading"><span>REDACTION REPORT</span><button id="download-button" class="quiet-button">download JSON</button></div><pre id="report-output"></pre></div>
+      </div>
+      <p id="error-message" class="error-message" hidden></p>
+    </section>
+  </main>
+  <footer><span>REDACTGATE</span><span>LOCAL FIRST Â· VERIFIED RELEASES</span></footer>
+  <script src="/app.js"></script>
+</body>
+</html>
+
+

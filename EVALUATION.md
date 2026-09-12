@@ -211,14 +211,14 @@ python -m redactgate.eval
 Observed output:
 
 ```text
-baseline safe_release_rate=0.667
+baseline safe_release_rate=0.688
 final safe_release_rate=1.000
 ```
 
 Current comparison:
 
 ```text
-Baseline failure categories: {'LEAK_CONTEXTUAL': 4}
+Baseline failure categories: {'LEAK_CONTEXTUAL': 5}
 Final failure categories: {}
 Final classifier provider: local
 Final prompt version: context_classifier_v1

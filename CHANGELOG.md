@@ -442,3 +442,38 @@ Expected output paths existed, and generated outputs did not contain the sample 
 **Decision / learning**
 
 The final reproduction flow remains dependency-light. The only network need observed in the sandbox was build-backend installation for editable package setup.
+
+---
+
+### 2026-08-30 - Structured detector and CI hardening
+
+**What changed**
+
+Added structure-aware JSON key and CSV column scanning for sensitive labels, expanded deterministic provider-token coverage, added an unlabeled high-confidence street-address candidate, added representative structured examples, and added GitHub Actions CI for Python 3.11 and 3.13.
+
+**Why**
+
+Real artifacts often carry secrets under field names rather than recognizable token prefixes. The benchmark also needed harder cases beyond the first synthetic set.
+
+**Evidence**
+
+`python -m unittest discover -s tests` ran 42 tests successfully.
+
+`python -m redactgate.eval` generated:
+
+```text
+case_count=16
+baseline safe_release_rate=0.688
+final safe_release_rate=1.000
+baseline failure_categories={'LEAK_CONTEXTUAL': 5}
+final failure_categories={}
+candidate_windows=5
+estimated_candidate_input_tokens=797
+model_calls=0
+```
+
+`python -m redactgate.cli examples/app_config.json --no-trajectory` and `python -m redactgate.cli examples/support_export.csv --no-trajectory` both returned `PASS`.
+
+**Decision / learning**
+
+Structured scanning improves baseline coverage without model calls. The final workflow still needs real-world file testing before it should be called production-ready.
