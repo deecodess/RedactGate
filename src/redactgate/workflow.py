@@ -23,7 +23,7 @@ def sanitize_file(
     max_bytes: int = DEFAULT_MAX_BYTES,
 ) -> tuple[Path, Path, dict[str, object]]:
     text = load_text(input_path, max_bytes=max_bytes)
-    deterministic = scan(text)
+    deterministic = scan(text, input_path)
     candidates = []
     classification = None
     detections = deterministic

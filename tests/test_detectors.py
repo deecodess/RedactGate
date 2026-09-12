@@ -26,7 +26,38 @@ class DetectorTests(unittest.TestCase):
         found = scan("request_id=550e8400-e29b-41d4-a716-446655440000 HTTP 500")
         self.assertEqual(found, [])
 
+    def test_detects_json_secret_value_by_key(self) -> None:
+        text = '{"password":"hunter2-secret","request_id":"req_public"}'
+        found = scan(text, "json")
+        self.assertEqual(found[0].source, "structured_json")
+        self.assertEqual(text[found[0].start:found[0].end], "hunter2-secret")
+
+    def test_detects_csv_secret_column_by_header(self) -> None:
+        text = "ticket,api_key,status\nT-1,syntheticsecretvalue,open\n"
+        found = scan(text, "csv")
+        self.assertEqual(found[0].source, "structured_csv")
+        self.assertEqual(text[found[0].start:found[0].end], "syntheticsecretvalue")
+
+    def test_detects_common_provider_tokens(self) -> None:
+        text = (
+            "google AIzaabcdefghijklmnopqrstuvwxyzABCDE1234 "
+            "slack xoxb-123456789012-abcdefABCDEF "
+            "stripe sk_demo_abcdefghijklmnopqrstuvwxyz"
+        )
+        found = scan(text)
+        self.assertEqual([item.type for item in found], ["TOKEN", "TOKEN", "TOKEN"])
+
+    def test_detects_private_key_block(self) -> None:
+        text = (
+            "before\n-----BEGIN PRIVATE KEY-----\n"
+            "syntheticprivatekeymaterial\n"
+            "-----END PRIVATE KEY-----\nafter"
+        )
+        found = scan(text)
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0].type, "SECRET")
+        self.assertIn("PRIVATE KEY", found[0].value)
+
 
 if __name__ == "__main__":
     unittest.main()
-

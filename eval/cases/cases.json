@@ -118,6 +118,46 @@
     "content": "Parser saw token keyword in docs but no credential. status=ok path=/docs/tokenization request_id=req_public_123",
     "sensitive": [],
     "must_preserve": ["token keyword", "/docs/tokenization", "req_public_123"]
+  },
+  {
+    "id": "case_013",
+    "format": "json",
+    "description": "JSON password value caught by structured key scanning.",
+    "content": "{\"password\":\"hunter2-secret\",\"request_id\":\"req_public_structured\",\"status\":200}",
+    "sensitive": [
+      {"value": "hunter2-secret", "type": "SECRET"}
+    ],
+    "must_preserve": ["req_public_structured", "\"status\":200"]
+  },
+  {
+    "id": "case_014",
+    "format": "csv",
+    "description": "CSV API key column caught by structured header scanning.",
+    "content": "ticket,api_key,status\nT-200,syntheticsecretvalue,open\n",
+    "sensitive": [
+      {"value": "syntheticsecretvalue", "type": "SECRET"}
+    ],
+    "must_preserve": ["T-200", "open"]
+  },
+  {
+    "id": "case_015",
+    "format": "log",
+    "description": "Provider token formats in logs.",
+    "content": "loaded slack=xoxb-123456789012-abcdefABCDEF stripe=sk_demo_abcdefghijklmnopqrstuvwxyz path=/healthz",
+    "sensitive": [
+      {"value": "xoxb-123456789012-abcdefABCDEF", "type": "TOKEN"},
+      {"value": "sk_demo_abcdefghijklmnopqrstuvwxyz", "type": "TOKEN"}
+    ],
+    "must_preserve": ["/healthz"]
+  },
+  {
+    "id": "case_016",
+    "format": "txt",
+    "description": "Unlabeled high-confidence postal street address.",
+    "content": "Support note references 1600 Market Street, Philadelphia, PA 19103 while preserving HTTP 409.",
+    "sensitive": [
+      {"value": "1600 Market Street, Philadelphia, PA 19103", "type": "ADDRESS"}
+    ],
+    "must_preserve": ["HTTP 409"]
   }
 ]
-

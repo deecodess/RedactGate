@@ -29,6 +29,13 @@ class ContextTests(unittest.TestCase):
         self.assertEqual(candidates[0].span, "782913445")
         self.assertEqual(candidates[0].type_hint, "IDENTIFIER")
 
+    def test_extracts_high_confidence_unlabeled_street_address(self) -> None:
+        text = "Support note mentions 1600 Market Street, Philadelphia, PA 19103 before HTTP 409."
+        candidates = extract_candidates(text)
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0].span, "1600 Market Street, Philadelphia, PA 19103")
+        self.assertEqual(candidates[0].trigger, "street_address_pattern")
+
     def test_skips_already_deterministic_spans(self) -> None:
         text = "User: Alice Smith email alice@example.com"
         candidates = extract_candidates(text, scan(text))
@@ -37,4 +44,3 @@ class ContextTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

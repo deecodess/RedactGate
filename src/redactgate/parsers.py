@@ -50,6 +50,7 @@ def _validate_csv(text: str) -> dict[str, object]:
         rows = list(csv.reader(io.StringIO(text), strict=True))
     except csv.Error as error:
         return {"passed": False, "format": "csv", "reason": str(error)}
+    rows = [row for row in rows if any(cell.strip() for cell in row)]
     widths = {len(row) for row in rows}
     if len(widths) > 1:
         return {"passed": False, "format": "csv", "reason": "CSV rows have inconsistent column counts."}

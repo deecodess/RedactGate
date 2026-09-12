@@ -16,6 +16,10 @@ class ParserTests(unittest.TestCase):
         result = validate_format("csv", "id,email\n1,a@example.com,extra\n")
         self.assertFalse(result["passed"])
 
+    def test_validates_csv_ignores_blank_rows(self) -> None:
+        result = validate_format("csv", "id,email\n1,[REDACTED_EMAIL]\n\n")
+        self.assertTrue(result["passed"])
+
     def test_text_format_needs_no_structural_validation(self) -> None:
         result = validate_format("txt", "plain text")
         self.assertTrue(result["passed"])
@@ -23,4 +27,3 @@ class ParserTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

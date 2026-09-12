@@ -55,7 +55,7 @@ def evaluate_cases(cases: list[EvalCase], workflow_name: str) -> dict[str, objec
     verification_retries = 0
 
     for case in cases:
-        deterministic = scan(case.content)
+        deterministic = scan(case.content, case.format)
         candidates = []
         classification = ClassificationResult(decisions=[])
         detections = deterministic

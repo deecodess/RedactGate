@@ -12,8 +12,8 @@ class WorkflowTests(unittest.TestCase):
         cases = {
             "sample.txt": "Email alice@example.com failed with HTTP 500",
             "sample.log": "Email alice@example.com failed with HTTP 500",
-            "sample.json": '{"email":"alice@example.com","status":500}',
-            "sample.csv": "email,status\nalice@example.com,500\n",
+            "sample.json": '{"password":"hunter2-secret","status":500}',
+            "sample.csv": "api_key,status\nsyntheticsecretvalue,500\n",
         }
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -30,7 +30,10 @@ class WorkflowTests(unittest.TestCase):
                     self.assertTrue(report_path.exists())
                     self.assertEqual(report["status"], "PASS")
                     self.assertTrue(report["verification"]["format_check_passed"])
-                    self.assertNotIn("alice@example.com", redacted_path.read_text(encoding="utf-8"))
+                    sanitized = redacted_path.read_text(encoding="utf-8")
+                    self.assertNotIn("alice@example.com", sanitized)
+                    self.assertNotIn("hunter2-secret", sanitized)
+                    self.assertNotIn("syntheticsecretvalue", sanitized)
 
     def test_sanitize_file_writes_artifact_and_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -17,6 +17,11 @@ ADDRESS_LABEL_RE = re.compile(
     r"(?P<span>\d{1,6}\s+[A-Za-z0-9 .#-]+?,\s*[A-Za-z .'-]+,\s*[A-Z]{2}\s+\d{5}(?:-\d{4})?)",
     re.IGNORECASE,
 )
+UNLABELED_ADDRESS_RE = re.compile(
+    r"\b(?P<span>\d{1,6}\s+[A-Z][A-Za-z0-9 .#-]+?"
+    r"\s(?:Street|St|Avenue|Ave|Road|Rd|Lane|Ln|Drive|Dr|Boulevard|Blvd),\s*"
+    r"[A-Z][A-Za-z .'-]+,\s*[A-Z]{2}\s+\d{5}(?:-\d{4})?)\b"
+)
 NUMERIC_ID_RE = re.compile(
     r"\b(?P<label>Patient ID|Customer ID|Account ID|Member ID)\s+"
     r"(?P<span>\d{6,12})\b",
@@ -53,6 +58,7 @@ def extract_candidates(text: str, existing: list[Detection] | None = None) -> li
 
     candidates.extend(_matches(text, NAME_LABEL_RE, "PERSON_NAME", occupied))
     candidates.extend(_matches(text, ADDRESS_LABEL_RE, "ADDRESS", occupied))
+    candidates.extend(_matches(text, UNLABELED_ADDRESS_RE, "ADDRESS", occupied, trigger="street_address_pattern"))
     candidates.extend(_matches(text, NUMERIC_ID_RE, "IDENTIFIER", occupied))
 
     return _without_duplicate_spans(candidates)
@@ -63,6 +69,7 @@ def _matches(
     pattern: re.Pattern[str],
     type_hint: str,
     occupied: list[tuple[int, int]],
+    trigger: str | None = None,
 ) -> list[CandidateWindow]:
     found: list[CandidateWindow] = []
     for match in pattern.finditer(text):
@@ -78,7 +85,7 @@ def _matches(
                 end=end,
                 span=match.group("span"),
                 type_hint=type_hint,
-                trigger=match.group("label"),
+                trigger=trigger or match.group("label"),
                 window_start=window_start,
                 window_end=window_end,
                 window=text[window_start:window_end],
